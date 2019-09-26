@@ -33,4 +33,34 @@ public class Grammar
         }
     }
 
+    private void findVoidables()
+    {
+        foreach (GrammarProduction production in productions)
+        {
+            if (production.GetRightSide().Count() == 0 && !voidableNT[production.GetLeftSide()])
+            {
+                voidableNT[production.GetLeftSide] = true;
+                this.findVoidables();
+            } 
+            else
+            {
+                bool __isVoidable = true;
+                foreach (GrammarElement element in production.GetRightSide())
+                {
+                    if (!element.IsNonTerminal || !voidableNT[element])
+                    {
+                        __isVoidable = false;
+                    }
+                }
+                if (__isVoidable)
+                {
+                    if (!voidableNT[production.GetLeftSide()])
+                    {
+                        voidableNT[production.GetLeftSide()] = true;
+                        this.findVoidables();
+                    }
+                }
+            }
+        }
+    }
 }
