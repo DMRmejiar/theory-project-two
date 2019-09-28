@@ -1,11 +1,11 @@
-import System.collections;
+using System.Collections.Generic;
 
 public class GrammarProduction
 {
     private GrammarElement leftSide;
     private List<GrammarElement> rightSide;
     
-    GrammarProduction(GrammarElement leftSide, List<GrammarElement> rightSide)
+    public GrammarProduction(GrammarElement leftSide, List<GrammarElement> rightSide)
     {
         this.leftSide = leftSide;
         this.rightSide = rightSide;

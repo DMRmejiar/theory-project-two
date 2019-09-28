@@ -1,64 +1,134 @@
+using System.Collections.Generic;
+
 public class Grammar
 {
     List<GrammarProduction> productions;
-    List<GrammarElement> NonTerminals;
+    List<GrammarElement> nonTerminals;
     Dictionary<GrammarElement, bool> voidableNT;
-    List<GrammarElement> voidableProductions;
-    List<GrammarElement> firstOfEachNT;
+    List<bool> voidableProductions;
+    List<List<GrammarElement>> firstOfEachNT;
     List<GrammarElement> firstOfEachProduction;
     List<GrammarElement> nextOfEachNT;
     List<GrammarElement> selectionOfEachProduction;
-    
+
     string endOfSequence = "Ω";
 
-    public void GenerateNonTerminals()
+    /// <summary>
+    /// Constructor de la Clase Grammar
+    /// </summary>
+    /// <param name="productions"></param>
+    /// <param name="nonTerminals"></param>
+    public Grammar(List<GrammarProduction> productions, List<GrammarElement> nonTerminals)
     {
-        GrammarElement currentNT;
-        
-        foreach (GrammarProduction p in productions)
+        this.productions = productions;
+        this.nonTerminals = nonTerminals;
+        GenerateNonTerminals();
+        Voidables();
+    }
+
+    /// <summary>
+    /// Crea una lista de Strings con los simbolos de los No Terminales anulables
+    /// </summary>
+    /// <returns>Dicha lista</returns>
+    public List<string> GetVoidableNonTerminals()
+    {
+        List<string> voidables = new List<string>();
+
+        foreach (KeyValuePair<GrammarElement, bool> nt in voidableNT)
         {
-            currentNT = p.GetLeftSide();
-            if(!NonTerminals.Contains(currentNT))
+            if (nt.Value)
             {
-                NonTerminals.Add(currentNT);
+                voidables.Add(nt.Key.GetSymbol());
             }
         }
+
+        for (int i = 0; i < voidableProductions.Count; i++)
+        {
+            if (voidableProductions[i])
+            {
+                voidables.Add("" + i);
+            }
+        }
+
+        return voidables;
     }
 
-    public void Voidables()
+    /// <summary>
+    /// Crea y define el diccionario de anulables, dándoles valor de false
+    /// </summary>
+    public void GenerateNonTerminals()
     {
-        foreach (GrammarProduction p in productions)
+        voidableProductions = new List<bool>();
+        foreach (GrammarProduction nt in productions)
         {
-            
+            voidableProductions.Add(false);
+        }
+
+        voidableNT = new Dictionary<GrammarElement, bool>();
+        foreach (GrammarElement nt in nonTerminals)
+        {
+            voidableNT.Add(nt, false);
         }
     }
 
-    private void findVoidables()
+    /// <summary>
+    /// Define cuales No Terminales son Anulables haciendo uso del Diccionario y define cuales Producciones son anulables usando la lista
+    /// </summary>
+    private void Voidables()
     {
-        foreach (GrammarProduction production in productions)
+        
+        for (int i = 0; i < productions.Count; i++)
         {
-            if (production.GetRightSide().Count() == 0 && !voidableNT[production.GetLeftSide()])
+            if (productions[i].GetRightSide().Count == 0)
             {
-                voidableNT[production.GetLeftSide] = true;
-                this.findVoidables();
-            } 
+                voidableProductions[i] = true;
+
+                if (!voidableNT[productions[i].GetLeftSide()])
+                {
+                    voidableNT[productions[i].GetLeftSide()] = true;
+                    Voidables();
+                }
+            }
             else
             {
                 bool __isVoidable = true;
-                foreach (GrammarElement element in production.GetRightSide())
+                foreach (GrammarElement element in productions[i].GetRightSide())
                 {
-                    if (!element.IsNonTerminal || !voidableNT[element])
+                    if (!element.IsNonTerminal() || !voidableNT[element])
                     {
                         __isVoidable = false;
+                        break;
                     }
                 }
                 if (__isVoidable)
                 {
-                    if (!voidableNT[production.GetLeftSide()])
+                    if (!voidableNT[productions[i].GetLeftSide()])
                     {
-                        voidableNT[production.GetLeftSide()] = true;
-                        this.findVoidables();
+                        voidableProductions[i] = true;
+                        voidableNT[productions[i].GetLeftSide()] = true;
+                        Voidables();
                     }
+                }
+            }
+        }
+    }
+
+    private void GenerateFirstOfEachNT()
+    {
+        firstOfEachNT = new List<List<GrammarElement>>();
+        int indexOfNT;
+        foreach (GrammarElement nt in nonTerminals)
+        {
+            firstOfEachNT.Add(new List<GrammarElement>());
+        }
+        for (int i = 0; i < productions.Count; i++)
+        {
+            indexOfNT = nonTerminals.IndexOf(productions[i].GetLeftSide());
+            if (!voidableProductions[i] && !productions[i].GetRightSide()[0].IsNonTerminal())
+            {
+                if (!firstOfEachNT[indexOfNT].Contains(productions[i].GetRightSide()[0]))
+                {
+                    firstOfEachNT[indexOfNT].Add(productions[i].GetRightSide()[0]);
                 }
             }
         }

@@ -3,13 +3,13 @@ public class GrammarElement
     private bool isNonTerminal;
     private string symbol;
 
-    GrammarElement(bool isNonTerminal, string symbol)
+    public GrammarElement(bool isNonTerminal, string symbol)
     {
         this.isNonTerminal = isNonTerminal;
         this.symbol = symbol;
     }
 
-    public bool GetIsNonTerminal()
+    public bool IsNonTerminal()
     {
         return isNonTerminal;
     }
