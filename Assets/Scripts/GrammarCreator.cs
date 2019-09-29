@@ -29,12 +29,18 @@ public class GrammarCreator : MonoBehaviour
         GrammarProduction eight = new GrammarProduction(D, new List<GrammarElement>() { e, E });
         GrammarProduction nine = new GrammarProduction(E, new List<GrammarElement>() { B, D });
         GrammarProduction ten = new GrammarProduction(E, new List<GrammarElement>() { f });
+        //GrammarProduction eleven = new GrammarProduction(D, new List<GrammarElement>() { E, B });
 
         List<GrammarProduction> productions = new List<GrammarProduction>() { one, two, three, four, five, six, seven, eight, nine, ten };
-
+        
         Grammar grammar = new Grammar(productions, new List<GrammarElement>() { A, B, C, D, E });
-
+        /*
         foreach (string item in grammar.GetVoidableNonTerminals())
+        {
+            Debug.Log(item);
+        }
+        */
+        foreach (var item in grammar.GetFirstOfEachNT())
         {
             Debug.Log(item);
         }
