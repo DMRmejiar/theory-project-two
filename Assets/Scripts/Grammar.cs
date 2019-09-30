@@ -17,6 +17,7 @@ public class Grammar
     bool isQGrammar = false;
     bool isSFGrammar = false;
     bool isLRGrammar = false;
+    bool isLL1Grammar = false;
     string endOfSequence = "Ω";
 
     /// <summary>
@@ -49,6 +50,7 @@ public class Grammar
         IsQGrammar();
         IsSFGrammar();
         IsLRGrammar();
+        IsLL1Grammar();
     }
 
     /// <summary>
@@ -78,6 +80,22 @@ public class Grammar
         return voidables;
     }
 
+    public List<string> GetSelectionOfEachProduction()
+    {
+        List<string> selections = new List<string>();
+        string newSelection = " ";
+        foreach (List<GrammarElement> item in selectionOfEachProduction)
+        {
+            foreach (GrammarElement i in item)
+            {
+                newSelection += i.GetSymbol() + " ";
+            }
+            selections.Add(newSelection);
+            newSelection = " ";
+        }
+        return selections;
+    }
+
     public List<string> GetFirstOfEachProduction()
     {
         List<string> firsts = new List<string>();
@@ -99,6 +117,22 @@ public class Grammar
         List<string> firsts = new List<string>();
         string newFirsts = "";
         foreach (KeyValuePair<GrammarElement, List<GrammarElement>> item in firstOfEachNT)
+        {
+            foreach (GrammarElement i in item.Value)
+            {
+                newFirsts += i.GetSymbol() + " ";
+            }
+            firsts.Add(newFirsts);
+            newFirsts = "";
+        }
+        return firsts;
+    }
+
+    public List<string> GetNextOfEachNT()
+    {
+        List<string> firsts = new List<string>();
+        string newFirsts = "";
+        foreach (KeyValuePair<GrammarElement, List<GrammarElement>> item in nextOfEachNT)
         {
             foreach (GrammarElement i in item.Value)
             {
@@ -591,9 +625,49 @@ public class Grammar
         if (helper == productions.Count) isLRGrammar = true;
     }
 
+    public void IsLL1Grammar()
+    {
+        List<string> eachNT = new List<string>();
+        for (int i = 0; i < productions.Count; i++)
+        {
+            string nTByProduction = productions[i].GetLeftSide().GetSymbol();
+            if (!eachNT.Contains(nTByProduction))
+            {
+                eachNT.Add(nTByProduction);
+            }
+        }
+        int helper = 0;
+        for (int x = 0; x < eachNT.Count; x++)
+        {
+            for (int i = 0; i < productions.Count; i++)
+            {
+                List<string> eachSelectByNT = new List<string>();
+                if (productions[i].GetLeftSide().GetSymbol() == eachNT[x])
+                {
+                    if (productions[i].GetRightSide().Count != 0)
+                    {
+                        for (int z = 0; z < selectionOfEachProduction[i].Count; z++)
+                        {
+                            if (!eachSelectByNT.Contains(selectionOfEachProduction[i][z].GetSymbol()))
+                            {
+                                eachSelectByNT.Add(selectionOfEachProduction[i][z].GetSymbol());
+                            }
+                            else
+                            {
+                                helper++;
+                            }
+                        }
+
+                    }
+                }
+            }
+        }
+        if (helper == 0) isLL1Grammar = true;
+    }
+
     public List<bool> GetGrammarTypes()
     {
-        List<bool> grammarTypes = new List<bool>() { isSGrammar, isQGrammar, isSFGrammar, isLRGrammar };
+        List<bool> grammarTypes = new List<bool>() { isSGrammar, isQGrammar, isSFGrammar, isLRGrammar, isLL1Grammar };
         return grammarTypes;
     }
 }

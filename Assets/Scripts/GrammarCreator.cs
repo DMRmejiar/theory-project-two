@@ -13,6 +13,8 @@ public class GrammarCreator : MonoBehaviour
     public Text currentProductionText;
     public GameObject errorPanel;
     public Text errorText;
+    public GameObject finalPanel;
+    public Text finalText;
 
     Dictionary<GameObject, GrammarElement> elements;
     Dictionary<GameObject, GrammarProduction> productions;
@@ -61,7 +63,7 @@ public class GrammarCreator : MonoBehaviour
         GrammarProduction ten = new GrammarProduction(E, new List<GrammarElement>() { f });
 
         List<GrammarProduction> productions = new List<GrammarProduction>() { one, two, three, four, five, six, seven, eight, nine, ten };
-        Grammar grammar = new Grammar(productions, new List<GrammarElement>() { A, B, C, D, E });
+        grammar = new Grammar(productions, new List<GrammarElement>() { A, B, C, D, E });
 
     }
 
@@ -273,7 +275,7 @@ public class GrammarCreator : MonoBehaviour
 
     public void SendGrammar(List<GrammarElement> nt, List<GrammarProduction> productions)
     {
-        grammar = new Grammar(productions, nt);
+        //grammar = new Grammar(productions, nt);
         Print();
     }
 
@@ -285,24 +287,52 @@ public class GrammarCreator : MonoBehaviour
 
     public void Print()
     {
-        List<string> firsts = grammar.GetFirstOfEachNT();
-        Debug.Log("Primeros de NT");
-        foreach (string item in firsts)
-        {
-            Debug.Log(item);
-        }
-
-        firsts = grammar.GetFirstOfEachProduction();
-        Debug.Log("Primeros de Producción");
-        foreach (string item in firsts)
-        {
-            Debug.Log(item);
-        }
+        string Final = "";
 
         List<bool> types = grammar.GetGrammarTypes();
-        if (types[0]) Debug.Log("Is S Gramar");
-        if (types[1]) Debug.Log("Is Q Gramar");
-        if (types[2]) Debug.Log("Is SpecialForm Gramar");
-        if (types[3]) Debug.Log("Is RightLinear Gramar");
+        if (types[0]) Final += "Is S Gramar\n" ;
+        if (types[1]) Final += "Is Q Gramar\n";
+        if (types[2]) Final += "Is SpecialForm Gramar\n";
+        if (types[3]) Final += "Is RightLinear Gramar\n";
+        if (types[4]) Final += "Is LL1 Gramar\n";
+
+        Final += "\n";
+
+        List<string> firsts = grammar.GetFirstOfEachNT();
+        Final += "Primeros de NT\n";
+        foreach (string item in firsts)
+        {
+            Final += item + "\n";
+        }
+
+        Final += "\n";
+
+        firsts = grammar.GetFirstOfEachProduction();
+        Final += "Primeros de Producción\n";
+        foreach (string item in firsts)
+        {
+            Final += item + "\n";
+        }
+
+        Final += "\n";
+
+        firsts = grammar.GetNextOfEachNT();
+        Final += "Siguientes de NT\n";
+        foreach (string item in firsts)
+        {
+            Final += item + "\n";
+        }
+
+        Final += "\n";
+
+        firsts = grammar.GetSelectionOfEachProduction();
+        Final += "Selección de Cada Producción\n";
+        for(int i = 0; i < firsts.Count; i++)
+        {
+            Final += i + ") = {" + firsts[i] + "}\n";
+        }
+
+        finalPanel.SetActive(true);
+        finalText.text = Final;
     }
 }
