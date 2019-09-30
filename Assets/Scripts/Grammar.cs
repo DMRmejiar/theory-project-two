@@ -12,7 +12,7 @@ public class Grammar
     Dictionary<GrammarElement, List<GrammarElement>> firstOfEachNT;
     List<List<GrammarElement>> firstOfEachProduction;
     Dictionary<GrammarElement, List<GrammarElement>> nextOfEachNT;
-    List<GrammarElement> selectionOfEachProduction;
+    List<List<GrammarElement>> selectionOfEachProduction;
     bool isSGrammar = false;
     bool isQGrammar = false;
     bool isSFGrammar = false;
@@ -33,6 +33,18 @@ public class Grammar
         GenerateFirstOfEachNT();
         GenerateFirstOfEachProduction();
         GenerateNextOfEachNT();
+        GenerateSelectionOfEachProduction();
+
+        foreach (var item in nextOfEachNT)
+        {
+            string __temp = item.Key.GetSymbol()+" :";
+            foreach (var __value in item.Value)
+            {
+                __temp += " " + __value.GetSymbol();
+            }
+            Debug.Log(__temp);
+        }
+        
         IsSGrammar();
         IsQGrammar();
         IsSFGrammar();
@@ -403,6 +415,31 @@ public class Grammar
         }
     }
     
+    /// <summary>
+    /// 
+    /// </summary>
+    public void GenerateSelectionOfEachProduction()
+    {
+        selectionOfEachProduction = new List<List<GrammarElement>>();
+        for (int i = 0; i < productions.Count; i++)
+        {
+            List<GrammarElement> actualSelection = new List<GrammarElement>();
+            foreach (GrammarElement element in firstOfEachProduction[i])
+            {
+                actualSelection.Add(element);
+            }
+
+            if (voidableNT[productions[i].GetLeftSide()])
+            {
+                foreach (GrammarElement element in nextOfEachNT[productions[i].GetLeftSide()])
+                {
+                    if (!actualSelection.Contains(element)) actualSelection.Add(element);
+                }
+            }
+            selectionOfEachProduction.Add(actualSelection);
+        }
+    }
+
     /// <summary>
     /// Define no terminales, identifica símbolo de lado izquierdo que sea terminal, y que no esté repetido.
     /// No acepta secuencia nula
