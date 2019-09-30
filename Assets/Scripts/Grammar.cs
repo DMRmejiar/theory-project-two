@@ -19,11 +19,8 @@ public class Grammar
     bool isLRGrammar = false;
     bool isLL1Grammar = false;
     string endOfSequence = "Ω";
-<<<<<<< HEAD
-    private GrammarElement elementEndOfSequence;
-=======
+    
     GrammarElement endOfSequenceElemment;
->>>>>>> 9e8481c6345bf13e428cca8a4a680e40be03a388
 
     /// <summary>
     /// Constructor de la Clase Grammar
@@ -35,27 +32,12 @@ public class Grammar
         endOfSequenceElemment = new GrammarElement(false, endOfSequence);
         this.productions = productions;
         this.nonTerminals = nonTerminals;
-        elementEndOfSequence = new GrammarElement(false, endOfSequence);
         GenerateNonTerminals();
         Voidables();
         GenerateFirstOfEachNT();
         GenerateFirstOfEachProduction();
         GenerateNextOfEachNT();
         GenerateSelectionOfEachProduction();
-<<<<<<< HEAD
-=======
-
-        foreach (var item in nextOfEachNT)
-        {
-            string __temp = item.Key.GetSymbol() + " :";
-            foreach (var __value in item.Value)
-            {
-                __temp += " " + __value.GetSymbol();
-            }
-            Debug.Log(__temp);
-        }
-
->>>>>>> 9e8481c6345bf13e428cca8a4a680e40be03a388
         IsSGrammar();
         IsQGrammar();
         IsSFGrammar();
@@ -359,27 +341,16 @@ public class Grammar
 
         foreach (var nonTerminal in nonTerminals)
         {
-<<<<<<< HEAD
             var seekedNt = new List<GrammarElement> {nonTerminal};
             FindNextOfEachNT(nonTerminal, nonTerminal, seekedNt);
-            
+            /* DEBUG
             string __temp = nonTerminal.GetSymbol()+" :";
-=======
-            var seekedNt = new List<GrammarElement> { nonTerminal };
-            if (productions[0].GetLeftSide() == nonTerminal)
-            {
-                nextOfEachNT[nonTerminal].Add(new GrammarElement(false, endOfSequence));
-            }
-            FindNextOfEachNT(nonTerminal, seekedNt);
-
-            string __temp = nonTerminal.GetSymbol() + " :";
->>>>>>> 9e8481c6345bf13e428cca8a4a680e40be03a388
             foreach (var __value in nextOfEachNT[nonTerminal])
             {
                 __temp += " " + __value.GetSymbol();
             }
             Debug.Log(__temp);
-
+            */
         }
     }
 
@@ -387,8 +358,8 @@ public class Grammar
     {
         if (guideNT == productions[0].GetLeftSide())
         {
-            if (!nextOfEachNT[nonTerminal].Contains(elementEndOfSequence))
-                nextOfEachNT[nonTerminal].Add(elementEndOfSequence);
+            if (!nextOfEachNT[nonTerminal].Contains(endOfSequenceElemment))
+                nextOfEachNT[nonTerminal].Add(endOfSequenceElemment);
         }
 
         foreach (var production in productions)
@@ -412,48 +383,11 @@ public class Grammar
                     {
                         continue;
                     }
-<<<<<<< HEAD
                     if (element.IsNonTerminal())
-=======
-                    else
->>>>>>> 9e8481c6345bf13e428cca8a4a680e40be03a388
                     {
                         foreach (var tempVar in firstOfEachNT[element].Where(tempVar => !nextOfEachNT[nonTerminal].Contains(tempVar)))
                         {
-<<<<<<< HEAD
                             nextOfEachNT[nonTerminal].Add(tempVar);
-=======
-                            if (index == productions[indexProduction].GetRightSide().Count - 1)
-                            {
-                                if (!seekedNt.Contains(productions[indexProduction].GetRightSide()[index]))
-                                {
-                                    seekedNt.Add(productions[indexProduction].GetRightSide()[index]);
-                                }
-                                //FindNextOfEachNT(productions[indexProduction].GetLeftSide(), seekedNt);
-                                foreach (var terminal in nextOfEachNT[productions[indexProduction].GetLeftSide()])
-                                {
-                                    if (!nextOfEachNT[nonTerminal].Contains(terminal))
-                                        nextOfEachNT[nonTerminal].Add(terminal);
-                                }
-                            }
-                            continue;
-                        }
-
-                        if (!seekedNt.Contains(productions[indexProduction].GetRightSide()[index]))
-                        {
-                            seekedNt.Add(productions[indexProduction].GetRightSide()[index]);
-                        }
-
-                        foreach (var terminal in firstOfEachNT[productions[indexProduction].GetRightSide()[index]])
-                        {
-                            if (!nextOfEachNT[nonTerminal].Contains(terminal))
-                                nextOfEachNT[nonTerminal].Add(terminal);
-                        }
-
-                        if (!voidableNT[productions[indexProduction].GetRightSide()[index]])
-                        {
-                            break;
->>>>>>> 9e8481c6345bf13e428cca8a4a680e40be03a388
                         }
 
                         if (!voidableNT[element]) break;
