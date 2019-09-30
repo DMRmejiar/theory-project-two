@@ -131,7 +131,9 @@ public class Grammar
             }
         }
     }
-    
+    /// <summary>
+    /// Inicializador de busqueda de primeros de cada produccion de la Clase Grammar
+    /// </summary>
     private void GenerateFirstOfEachNT()
     {
         List<GrammarElement> seekedNt = new List<GrammarElement>();
@@ -150,6 +152,14 @@ public class Grammar
             FindFirstOfEachNT(productions[indexProduction].GetLeftSide(), indexProduction, seekedNt, 0);
         }
     }
+    
+    /// <summary>
+    /// Busqueda recursiva de Primeros de cada Produccion de la Clase Grammar
+    /// </summary>
+    /// <param name="nonterminal"></param>
+    /// <param name="production"></param>
+    /// <param name="seekedNt"></param>
+    /// <param name="index"></param>
     private void FindFirstOfEachNT(GrammarElement actualNt, int indexProduction, List<GrammarElement> seekedNt, int indexElement)
     {
         if (productions[indexProduction].GetRightSide().Count == 0) return;
@@ -222,60 +232,8 @@ public class Grammar
                             }
                         }
                     }
-                    //if (productions[indexProduction].GetRightSide().Count)
                 }
             }
-            /*
-            var __isBreaked = false;
-            foreach (GrammarElement element in productions[indexProduction].GetRightSide())
-            {
-                Debug.Log("   In "+actualNt.GetSymbol()+" analise "+element.GetSymbol());
-                if (element.IsNonTerminal())
-                {
-                    if (!voidableNT[element])
-                    {
-                        if (!seekedNt.Contains(firstOfRightSide))
-                        {
-                            Debug.Log("  Add "+firstOfRightSide.GetSymbol()+" to seekedNt");
-                            seekedNt.Add(firstOfRightSide);
-                            for (var index = 0; index < productions.Count; index++)
-                            {
-                                var production = productions[index];
-                                if (production.GetLeftSide() == firstOfRightSide)
-                                {
-                                    FindFirstOfEachNT(actualNt, index, seekedNt);
-                                }
-                            }
-                
-                        }
-                    }
-                    else
-                    {
-                        __isBreaked = true;
-                        break;
-                    }
-                }
-                else
-                {
-                    if (!firstOfEachNT[actualNt].Contains(element)) firstOfEachNT[actualNt].Add(element);
-                    __isBreaked = true;
-                    break;
-                }
-            }
-
-            if (!(__isBreaked) && (productions[indexProduction].GetLeftSide() != actualNt))
-            {
-                for (var index = 0; index < productions.Count; index++)
-                {
-                    if (productions[index].GetLeftSide() == productions[indexProduction].GetLeftSide() &&
-                        !seekedNt.Contains(productions[index].GetLeftSide()))
-                    {
-                        seekedNt.Add(productions[index].GetLeftSide());
-                        FindFirstOfEachNT(actualNt, index, seekedNt);
-                    }
-                }
-            }
-            */
         }
     }
 }
