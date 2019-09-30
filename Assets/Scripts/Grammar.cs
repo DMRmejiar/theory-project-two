@@ -32,10 +32,30 @@ public class Grammar
         Voidables();
         GenerateFirstOfEachNT();
         GenerateFirstOfEachProduction();
+        GenerateNextOfEachNT();
+        GenerateSelectionOfEachProduction();
         IsSGrammar();
         IsQGrammar();
         IsSFGrammar();
         IsLRGrammar();
+    }
+
+    /// <summary>
+    /// Crea y define el diccionario de anulables, dándoles valor de false
+    /// </summary>
+    public void GenerateNonTerminals()
+    {
+        voidableProductions = new List<bool>();
+        foreach (GrammarProduction nt in productions)
+        {
+            voidableProductions.Add(false);
+        }
+
+        voidableNT = new Dictionary<GrammarElement, bool>();
+        foreach (GrammarElement nt in nonTerminals)
+        {
+            voidableNT.Add(nt, false);
+        }
     }
 
     /// <summary>
@@ -65,62 +85,12 @@ public class Grammar
         return voidables;
     }
 
-    public List<string> GetFirstOfEachProduction()
-    {
-        List<string> firsts = new List<string>();
-        string newFirsts = "";
-        foreach (List<GrammarElement> item in firstOfEachProduction)
-        {
-            foreach (GrammarElement i in item)
-            {
-                newFirsts += i.GetSymbol() + " ";
-            }
-            firsts.Add(newFirsts);
-            newFirsts = "";
-        }
-        return firsts;
-    }
-
-    public List<string> GetFirstOfEachNT()
-    {
-        List<string> firsts = new List<string>();
-        string newFirsts = "";
-        foreach (KeyValuePair<GrammarElement, List<GrammarElement>> item in firstOfEachNT)
-        {
-            foreach (GrammarElement i in item.Value)
-            {
-                newFirsts += i.GetSymbol() + " ";
-            }
-            firsts.Add(newFirsts);
-            newFirsts = "";
-        }
-        return firsts;
-    }
-
-    /// <summary>
-    /// Crea y define el diccionario de anulables, dándoles valor de false
-    /// </summary>
-    public void GenerateNonTerminals()
-    {
-        voidableProductions = new List<bool>();
-        foreach (GrammarProduction nt in productions)
-        {
-            voidableProductions.Add(false);
-        }
-
-        voidableNT = new Dictionary<GrammarElement, bool>();
-        foreach (GrammarElement nt in nonTerminals)
-        {
-            voidableNT.Add(nt, false);
-        }
-    }
-
     /// <summary>
     /// Define cuales No Terminales son Anulables haciendo uso del Diccionario y define cuales Producciones son anulables usando la lista
     /// </summary>
     private void Voidables()
     {
-        
+
         for (int i = 0; i < productions.Count; i++)
         {
             if (productions[i].GetRightSide().Count == 0)
@@ -156,24 +126,56 @@ public class Grammar
             }
         }
     }
-    
+
     /// <summary>
     /// Inicializador de busqueda de primeros de cada produccion de la Clase Grammar
     /// </summary>
     private void GenerateFirstOfEachNT()
     {
         firstOfEachNT = new Dictionary<GrammarElement, List<GrammarElement>>();
-        
+
         foreach (var nt in nonTerminals)
         {
             firstOfEachNT.Add(nt, new List<GrammarElement>());
         }
-        
+
         for (var indexProduction = 0; indexProduction < productions.Count; indexProduction++)
         {
-            var seekedNt = new List<GrammarElement> {productions[indexProduction].GetLeftSide()};
+            var seekedNt = new List<GrammarElement> { productions[indexProduction].GetLeftSide() };
             FindFirstOfEachNT(productions[indexProduction].GetLeftSide(), indexProduction, seekedNt, 0);
         }
+    }
+
+    public List<string> GetFirstOfEachProduction()
+    {
+        List<string> firsts = new List<string>();
+        string newFirsts = "";
+        foreach (List<GrammarElement> item in firstOfEachProduction)
+        {
+            foreach (GrammarElement i in item)
+            {
+                newFirsts += i.GetSymbol() + " ";
+            }
+            firsts.Add(newFirsts);
+            newFirsts = "";
+        }
+        return firsts;
+    }
+
+    public List<string> GetFirstOfEachNT()
+    {
+        List<string> firsts = new List<string>();
+        string newFirsts = "";
+        foreach (KeyValuePair<GrammarElement, List<GrammarElement>> item in firstOfEachNT)
+        {
+            foreach (GrammarElement i in item.Value)
+            {
+                newFirsts += i.GetSymbol() + " ";
+            }
+            firsts.Add(newFirsts);
+            newFirsts = "";
+        }
+        return firsts;
     }
 
     /// <summary>
@@ -324,7 +326,15 @@ public class Grammar
             }
         }
     }
-    
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public void GenerateSelectionOfEachProduction()
+    {
+
+    }
+
     /// <summary>
     /// Define no terminales, identifica símbolo de lado izquierdo que sea terminal, y que no esté repetido.
     /// No acepta secuencia nula
