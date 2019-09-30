@@ -33,29 +33,21 @@ public class Grammar
         GenerateFirstOfEachNT();
         GenerateFirstOfEachProduction();
         GenerateNextOfEachNT();
-        GenerateSelectionOfEachProduction();
+
+        foreach (var item in nextOfEachNT)
+        {
+            string __temp = item.Key.GetSymbol()+" :";
+            foreach (var __value in item.Value)
+            {
+                __temp += " " + __value.GetSymbol();
+            }
+            Debug.Log(__temp);
+        }
+        
         IsSGrammar();
         IsQGrammar();
         IsSFGrammar();
         IsLRGrammar();
-    }
-
-    /// <summary>
-    /// Crea y define el diccionario de anulables, dándoles valor de false
-    /// </summary>
-    public void GenerateNonTerminals()
-    {
-        voidableProductions = new List<bool>();
-        foreach (GrammarProduction nt in productions)
-        {
-            voidableProductions.Add(false);
-        }
-
-        voidableNT = new Dictionary<GrammarElement, bool>();
-        foreach (GrammarElement nt in nonTerminals)
-        {
-            voidableNT.Add(nt, false);
-        }
     }
 
     /// <summary>
@@ -85,12 +77,62 @@ public class Grammar
         return voidables;
     }
 
+    public List<string> GetFirstOfEachProduction()
+    {
+        List<string> firsts = new List<string>();
+        string newFirsts = "";
+        foreach (List<GrammarElement> item in firstOfEachProduction)
+        {
+            foreach (GrammarElement i in item)
+            {
+                newFirsts += i.GetSymbol() + " ";
+            }
+            firsts.Add(newFirsts);
+            newFirsts = "";
+        }
+        return firsts;
+    }
+
+    public List<string> GetFirstOfEachNT()
+    {
+        List<string> firsts = new List<string>();
+        string newFirsts = "";
+        foreach (KeyValuePair<GrammarElement, List<GrammarElement>> item in firstOfEachNT)
+        {
+            foreach (GrammarElement i in item.Value)
+            {
+                newFirsts += i.GetSymbol() + " ";
+            }
+            firsts.Add(newFirsts);
+            newFirsts = "";
+        }
+        return firsts;
+    }
+
+    /// <summary>
+    /// Crea y define el diccionario de anulables, dándoles valor de false
+    /// </summary>
+    public void GenerateNonTerminals()
+    {
+        voidableProductions = new List<bool>();
+        foreach (GrammarProduction nt in productions)
+        {
+            voidableProductions.Add(false);
+        }
+
+        voidableNT = new Dictionary<GrammarElement, bool>();
+        foreach (GrammarElement nt in nonTerminals)
+        {
+            voidableNT.Add(nt, false);
+        }
+    }
+
     /// <summary>
     /// Define cuales No Terminales son Anulables haciendo uso del Diccionario y define cuales Producciones son anulables usando la lista
     /// </summary>
     private void Voidables()
     {
-
+        
         for (int i = 0; i < productions.Count; i++)
         {
             if (productions[i].GetRightSide().Count == 0)
@@ -126,56 +168,24 @@ public class Grammar
             }
         }
     }
-
+    
     /// <summary>
     /// Inicializador de busqueda de primeros de cada produccion de la Clase Grammar
     /// </summary>
     private void GenerateFirstOfEachNT()
     {
         firstOfEachNT = new Dictionary<GrammarElement, List<GrammarElement>>();
-
+        
         foreach (var nt in nonTerminals)
         {
             firstOfEachNT.Add(nt, new List<GrammarElement>());
         }
-
+        
         for (var indexProduction = 0; indexProduction < productions.Count; indexProduction++)
         {
-            var seekedNt = new List<GrammarElement> { productions[indexProduction].GetLeftSide() };
+            var seekedNt = new List<GrammarElement> {productions[indexProduction].GetLeftSide()};
             FindFirstOfEachNT(productions[indexProduction].GetLeftSide(), indexProduction, seekedNt, 0);
         }
-    }
-
-    public List<string> GetFirstOfEachProduction()
-    {
-        List<string> firsts = new List<string>();
-        string newFirsts = "";
-        foreach (List<GrammarElement> item in firstOfEachProduction)
-        {
-            foreach (GrammarElement i in item)
-            {
-                newFirsts += i.GetSymbol() + " ";
-            }
-            firsts.Add(newFirsts);
-            newFirsts = "";
-        }
-        return firsts;
-    }
-
-    public List<string> GetFirstOfEachNT()
-    {
-        List<string> firsts = new List<string>();
-        string newFirsts = "";
-        foreach (KeyValuePair<GrammarElement, List<GrammarElement>> item in firstOfEachNT)
-        {
-            foreach (GrammarElement i in item.Value)
-            {
-                newFirsts += i.GetSymbol() + " ";
-            }
-            firsts.Add(newFirsts);
-            newFirsts = "";
-        }
-        return firsts;
     }
 
     /// <summary>
@@ -298,11 +308,12 @@ public class Grammar
         
         foreach (var nt in nonTerminals)
         {
-            firstOfEachNT.Add(nt, new List<GrammarElement>());
+            nextOfEachNT.Add(nt, new List<GrammarElement>());
         }
 
         foreach (var nonTerminal in nonTerminals)
         {
+            Debug.Log("Full with "+nonTerminal.GetSymbol());
             var seekedNt = new List<GrammarElement> {nonTerminal};
             if (productions[0].GetLeftSide() == nonTerminal)
             {
@@ -318,23 +329,51 @@ public class Grammar
         {
             for (var indexElement = 0; indexElement < productions[indexProduction].GetRightSide().Count; indexElement++)
             {
-                if (productions[indexProduction].GetRightSide()[indexElement].IsNonTerminal())
+                if (productions[indexProduction].GetRightSide()[indexElement] != nonTerminal) continue;
+                for (var index = indexElement + 1; index < productions[indexProduction].GetRightSide().Count; index++)
                 {
-                    seekedNt.Add(productions[indexProduction].GetRightSide()[indexElement]);
-                    FindNextOfEachNT(nonTerminal, seekedNt);
+                    if (!productions[indexProduction].GetRightSide()[index].IsNonTerminal())
+                    {
+                        nextOfEachNT[nonTerminal].Add(productions[indexProduction].GetRightSide()[index]);
+                    }
+                    else 
+                    {
+                        if (seekedNt.Contains(productions[indexProduction].GetRightSide()[index])) continue;
+                        seekedNt.Add(productions[indexProduction].GetRightSide()[index]);
+                            
+                        foreach (var terminal in firstOfEachNT[productions[indexProduction].GetRightSide()[index]])
+                        {
+                            if (!nextOfEachNT[nonTerminal].Contains(terminal))
+                                nextOfEachNT[nonTerminal].Add(terminal);
+                        }
+                            
+                        if (!voidableNT[productions[indexProduction].GetRightSide()[index]])
+                        {
+                            break;
+                        }
+
+                        if (index == productions[indexProduction].GetRightSide().Count - 1)
+                        {
+                            Debug.Log(" Next of "+nonTerminal.GetSymbol()+" is next of "+productions[indexProduction].GetLeftSide().GetSymbol());
+                            Debug.Log(indexProduction+" "+indexElement);
+                            if (seekedNt.Contains(productions[indexProduction].GetLeftSide()))
+                            {
+                                seekedNt.Add(productions[indexProduction].GetRightSide()[index]);
+                            }
+                            FindNextOfEachNT(productions[indexProduction].GetLeftSide(), seekedNt);
+                            foreach (var terminal in nextOfEachNT[productions[indexProduction].GetLeftSide()])
+                            {
+                                if (!nextOfEachNT[nonTerminal].Contains(terminal))
+                                    nextOfEachNT[nonTerminal].Add(terminal);
+                                Debug.Log("Control last add of "+terminal.GetSymbol()+" to "+nonTerminal.GetSymbol());
+                            }
+                        }
+                    }
                 }
             }
         }
     }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    public void GenerateSelectionOfEachProduction()
-    {
-
-    }
-
+    
     /// <summary>
     /// Define no terminales, identifica símbolo de lado izquierdo que sea terminal, y que no esté repetido.
     /// No acepta secuencia nula
