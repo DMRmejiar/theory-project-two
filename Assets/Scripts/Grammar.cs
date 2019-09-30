@@ -19,6 +19,7 @@ public class Grammar
     bool isLRGrammar = false;
     bool isLL1Grammar = false;
     string endOfSequence = "Ω";
+    GrammarElement endOfSequenceElemment;
 
     /// <summary>
     /// Constructor de la Clase Grammar
@@ -27,6 +28,7 @@ public class Grammar
     /// <param name="nonTerminals"></param>
     public Grammar(List<GrammarProduction> productions, List<GrammarElement> nonTerminals)
     {
+        endOfSequenceElemment = new GrammarElement(false, endOfSequence);
         this.productions = productions;
         this.nonTerminals = nonTerminals;
         GenerateNonTerminals();
@@ -38,14 +40,14 @@ public class Grammar
 
         foreach (var item in nextOfEachNT)
         {
-            string __temp = item.Key.GetSymbol()+" :";
+            string __temp = item.Key.GetSymbol() + " :";
             foreach (var __value in item.Value)
             {
                 __temp += " " + __value.GetSymbol();
             }
             Debug.Log(__temp);
         }
-        
+
         IsSGrammar();
         IsQGrammar();
         IsSFGrammar();
@@ -144,6 +146,7 @@ public class Grammar
         return firsts;
     }
 
+
     /// <summary>
     /// Crea y define el diccionario de anulables, dándoles valor de false
     /// </summary>
@@ -167,7 +170,7 @@ public class Grammar
     /// </summary>
     private void Voidables()
     {
-        
+
         for (int i = 0; i < productions.Count; i++)
         {
             if (productions[i].GetRightSide().Count == 0)
@@ -203,22 +206,22 @@ public class Grammar
             }
         }
     }
-    
+
     /// <summary>
     /// Inicializador de busqueda de primeros de cada produccion de la Clase Grammar
     /// </summary>
     private void GenerateFirstOfEachNT()
     {
         firstOfEachNT = new Dictionary<GrammarElement, List<GrammarElement>>();
-        
+
         foreach (var nt in nonTerminals)
         {
             firstOfEachNT.Add(nt, new List<GrammarElement>());
         }
-        
+
         for (var indexProduction = 0; indexProduction < productions.Count; indexProduction++)
         {
-            var seekedNt = new List<GrammarElement> {productions[indexProduction].GetLeftSide()};
+            var seekedNt = new List<GrammarElement> { productions[indexProduction].GetLeftSide() };
             FindFirstOfEachNT(productions[indexProduction].GetLeftSide(), indexProduction, seekedNt, 0);
         }
     }
@@ -292,7 +295,7 @@ public class Grammar
             }
         }
     }
-    
+
     /// <summary>
     /// Genera primeros de cada produccion.
     /// </summary>
@@ -304,7 +307,7 @@ public class Grammar
             //firstOfEachProduction.Add(new List<GrammarElement>(0));
             var toAdd = new List<GrammarElement>();
             var production = productions[index];
-            
+
             foreach (var element in production.GetRightSide())
             {
                 if (element.IsNonTerminal())
@@ -321,7 +324,7 @@ public class Grammar
                     break;
                 }
             }
-            
+
             firstOfEachProduction.Add(toAdd);
             /*
             string __temp = "Primeros de "+index+": ";
@@ -340,7 +343,7 @@ public class Grammar
     private void GenerateNextOfEachNT()
     {
         nextOfEachNT = new Dictionary<GrammarElement, List<GrammarElement>>();
-        
+
         foreach (var nt in nonTerminals)
         {
             nextOfEachNT.Add(nt, new List<GrammarElement>());
@@ -348,20 +351,20 @@ public class Grammar
 
         foreach (var nonTerminal in nonTerminals)
         {
-            var seekedNt = new List<GrammarElement> {nonTerminal};
+            var seekedNt = new List<GrammarElement> { nonTerminal };
             if (productions[0].GetLeftSide() == nonTerminal)
             {
-                nextOfEachNT[nonTerminal].Add(new GrammarElement(false,endOfSequence));
+                nextOfEachNT[nonTerminal].Add(new GrammarElement(false, endOfSequence));
             }
             FindNextOfEachNT(nonTerminal, seekedNt);
-            
-            string __temp = nonTerminal.GetSymbol()+" :";
+
+            string __temp = nonTerminal.GetSymbol() + " :";
             foreach (var __value in nextOfEachNT[nonTerminal])
             {
                 __temp += " " + __value.GetSymbol();
             }
             Debug.Log(__temp);
-            
+
         }
     }
 
@@ -394,7 +397,7 @@ public class Grammar
                     {
                         nextOfEachNT[nonTerminal].Add(productions[indexProduction].GetRightSide()[index]);
                     }
-                    else 
+                    else
                     {
                         if (index == indexElement)
                         {
@@ -418,13 +421,13 @@ public class Grammar
                         {
                             seekedNt.Add(productions[indexProduction].GetRightSide()[index]);
                         }
-                            
+
                         foreach (var terminal in firstOfEachNT[productions[indexProduction].GetRightSide()[index]])
                         {
                             if (!nextOfEachNT[nonTerminal].Contains(terminal))
                                 nextOfEachNT[nonTerminal].Add(terminal);
                         }
-                            
+
                         if (!voidableNT[productions[indexProduction].GetRightSide()[index]])
                         {
                             break;
@@ -448,7 +451,7 @@ public class Grammar
             }
         }
     }
-    
+
     /// <summary>
     /// 
     /// </summary>
@@ -511,7 +514,7 @@ public class Grammar
             }
         }
         if (helper == productions.Count) isSGrammar = true;
-        
+
     }
 
     /// <summary>
@@ -592,20 +595,20 @@ public class Grammar
         for (int i = 0; i < productions.Count; i++)
         {
             int helper2 = 0;
-            if(productions[i].GetRightSide().Count != 0)
+            if (productions[i].GetRightSide().Count != 0)
             {
-                for (int x = productions[i].GetRightSide().Count; x >0; x--)
+                for (int x = productions[i].GetRightSide().Count; x > 0; x--)
                 {
                     if (x == productions[i].GetRightSide().Count)
                     {
-                        if (productions[i].GetRightSide()[x-1].IsNonTerminal()==true)
+                        if (productions[i].GetRightSide()[x - 1].IsNonTerminal() == true)
                         {
                             helper2++;
                         }
                     }
                     else
                     {
-                        if(productions[i].GetRightSide()[x-1].IsNonTerminal() == false)
+                        if (productions[i].GetRightSide()[x - 1].IsNonTerminal() == false)
                         {
                             helper2++;
                         }
@@ -620,7 +623,7 @@ public class Grammar
             {
                 helper++;
             }
-            
+
         }
         if (helper == productions.Count) isLRGrammar = true;
     }
