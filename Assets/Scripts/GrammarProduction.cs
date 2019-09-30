@@ -16,8 +16,18 @@ public class GrammarProduction
         return leftSide;
     }
 
+    public void SetLeftSide(GrammarElement leftSide)
+    {
+        this.leftSide = leftSide;
+    }
+
     public List<GrammarElement> GetRightSide()
     {
         return rightSide;
+    }
+
+    public void SetRightSide(List<GrammarElement> rightSide)
+    {
+        this.rightSide = rightSide;
     }
 }
