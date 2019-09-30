@@ -67,6 +67,11 @@ public class GrammarCreator : MonoBehaviour
         {
             Debug.Log(item);
         }
+
+        foreach (var item in grammar.GetFirstOfEachNT())
+        {
+            Debug.Log(item);
+        }
     }
 
     public bool VerifyExistence(string symbol)
