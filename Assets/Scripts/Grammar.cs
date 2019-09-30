@@ -29,6 +29,18 @@ public class Grammar
         Voidables();
         GenerateFirstOfEachNT();
         GenerateFirstOfEachProduction();
+        GenerateNextOfEachNT();
+
+        foreach (var item in nextOfEachNT)
+        {
+            string __temp = item.Key.GetSymbol()+" :";
+            foreach (var __value in item.Value)
+            {
+                __temp += " " + __value.GetSymbol();
+            }
+            Debug.Log(__temp);
+        }
+        
         IsSGrammar();
         IsQGrammar();
         IsSFGrammar();
@@ -276,11 +288,12 @@ public class Grammar
         
         foreach (var nt in nonTerminals)
         {
-            firstOfEachNT.Add(nt, new List<GrammarElement>());
+            nextOfEachNT.Add(nt, new List<GrammarElement>());
         }
 
         foreach (var nonTerminal in nonTerminals)
         {
+            Debug.Log("Full with "+nonTerminal.GetSymbol());
             var seekedNt = new List<GrammarElement> {nonTerminal};
             if (productions[0].GetLeftSide() == nonTerminal)
             {
@@ -296,10 +309,46 @@ public class Grammar
         {
             for (var indexElement = 0; indexElement < productions[indexProduction].GetRightSide().Count; indexElement++)
             {
-                if (productions[indexProduction].GetRightSide()[indexElement].IsNonTerminal())
+                if (productions[indexProduction].GetRightSide()[indexElement] != nonTerminal) continue;
+                for (var index = indexElement + 1; index < productions[indexProduction].GetRightSide().Count; index++)
                 {
-                    seekedNt.Add(productions[indexProduction].GetRightSide()[indexElement]);
-                    FindNextOfEachNT(nonTerminal, seekedNt);
+                    if (!productions[indexProduction].GetRightSide()[index].IsNonTerminal())
+                    {
+                        nextOfEachNT[nonTerminal].Add(productions[indexProduction].GetRightSide()[index]);
+                    }
+                    else 
+                    {
+                        if (seekedNt.Contains(productions[indexProduction].GetRightSide()[index])) continue;
+                        seekedNt.Add(productions[indexProduction].GetRightSide()[index]);
+                            
+                        foreach (var terminal in firstOfEachNT[productions[indexProduction].GetRightSide()[index]])
+                        {
+                            if (!nextOfEachNT[nonTerminal].Contains(terminal))
+                                nextOfEachNT[nonTerminal].Add(terminal);
+                        }
+                            
+                        if (!voidableNT[productions[indexProduction].GetRightSide()[index]])
+                        {
+                            break;
+                        }
+
+                        if (index == productions[indexProduction].GetRightSide().Count - 1)
+                        {
+                            Debug.Log(" Next of "+nonTerminal.GetSymbol()+" is next of "+productions[indexProduction].GetLeftSide().GetSymbol());
+                            Debug.Log(indexProduction+" "+indexElement);
+                            if (seekedNt.Contains(productions[indexProduction].GetLeftSide()))
+                            {
+                                seekedNt.Add(productions[indexProduction].GetRightSide()[index]);
+                            }
+                            FindNextOfEachNT(productions[indexProduction].GetLeftSide(), seekedNt);
+                            foreach (var terminal in nextOfEachNT[productions[indexProduction].GetLeftSide()])
+                            {
+                                if (!nextOfEachNT[nonTerminal].Contains(terminal))
+                                    nextOfEachNT[nonTerminal].Add(terminal);
+                                Debug.Log("Control last add of "+terminal.GetSymbol()+" to "+nonTerminal.GetSymbol());
+                            }
+                        }
+                    }
                 }
             }
         }
