@@ -11,7 +11,7 @@ public class Grammar
     List<bool> voidableProductions;
     Dictionary<GrammarElement, List<GrammarElement>> firstOfEachNT;
     List<List<GrammarElement>> firstOfEachProduction;
-    List<GrammarElement> nextOfEachNT;
+    Dictionary<GrammarElement, List<GrammarElement>> nextOfEachNT;
     List<GrammarElement> selectionOfEachProduction;
     bool isSGrammar = false;
     bool isQGrammar = false;
@@ -31,7 +31,7 @@ public class Grammar
         GenerateNonTerminals();
         Voidables();
         GenerateFirstOfEachNT();
-        FirstOfEachProduction();
+        GenerateFirstOfEachProduction();
         IsSGrammar();
         IsQGrammar();
         IsSFGrammar();
@@ -162,7 +162,6 @@ public class Grammar
     /// </summary>
     private void GenerateFirstOfEachNT()
     {
-        var seekedNt = new List<GrammarElement>();
         firstOfEachNT = new Dictionary<GrammarElement, List<GrammarElement>>();
         
         foreach (var nt in nonTerminals)
@@ -172,11 +171,11 @@ public class Grammar
         
         for (var indexProduction = 0; indexProduction < productions.Count; indexProduction++)
         {
-            seekedNt = new List<GrammarElement> {productions[indexProduction].GetLeftSide()};
+            var seekedNt = new List<GrammarElement> {productions[indexProduction].GetLeftSide()};
             FindFirstOfEachNT(productions[indexProduction].GetLeftSide(), indexProduction, seekedNt, 0);
         }
     }
-    
+
     /// <summary>
     /// Busqueda recursiva de Primeros de cada Produccion de la Clase Grammar
     /// </summary>
@@ -209,19 +208,19 @@ public class Grammar
             }
 
             if (!voidableNT[firstOfRightSide]) return;
-            if (indexElement + 1 < productions[indexProduction].GetRightSide().Count)
+            var indexNextElement = indexElement + 1;
+            if (indexNextElement < productions[indexProduction].GetRightSide().Count)
             {
-                if (productions[indexProduction].GetRightSide()[indexElement + 1].IsNonTerminal())
+                if (productions[indexProduction].GetRightSide()[indexNextElement].IsNonTerminal())
                 {
-                    if (seekedNt.Contains(productions[indexProduction].GetRightSide()[indexElement + 1])) return;
-                    seekedNt.Add(productions[indexProduction].GetRightSide()[indexElement + 1]);
+                    if (seekedNt.Contains(productions[indexProduction].GetRightSide()[indexNextElement])) return;
+                    seekedNt.Add(productions[indexProduction].GetRightSide()[indexNextElement]);
                     for (var index = 0; index < productions.Count; index++)
                     {
                         var production = productions[index];
-                        if (production.GetLeftSide() == productions[indexProduction].GetRightSide()[indexElement + 1])
+                        if (production.GetLeftSide() == productions[indexProduction].GetRightSide()[indexNextElement])
                         {
-                                    
-                            FindFirstOfEachNT(actualNt, index, seekedNt, indexElement + 1);
+                            FindFirstOfEachNT(actualNt, index, seekedNt, 0);
                         }
                     }
                 }
@@ -246,8 +245,11 @@ public class Grammar
             }
         }
     }
-
-    private void FirstOfEachProduction()
+    
+    /// <summary>
+    /// Genera primeros de cada produccion.
+    /// </summary>
+    private void GenerateFirstOfEachProduction()
     {
         firstOfEachProduction = new List<List<GrammarElement>>();
         for (var index = 0; index < productions.Count; index++)
@@ -284,6 +286,45 @@ public class Grammar
             */
         }
     }
+
+    /// <summary>
+    /// Inicializador de busqueda de siguientes de cada produccion de la Clase Grammar
+    /// </summary>
+    private void GenerateNextOfEachNT()
+    {
+        nextOfEachNT = new Dictionary<GrammarElement, List<GrammarElement>>();
+        
+        foreach (var nt in nonTerminals)
+        {
+            firstOfEachNT.Add(nt, new List<GrammarElement>());
+        }
+
+        foreach (var nonTerminal in nonTerminals)
+        {
+            var seekedNt = new List<GrammarElement> {nonTerminal};
+            if (productions[0].GetLeftSide() == nonTerminal)
+            {
+                nextOfEachNT[nonTerminal].Add(new GrammarElement(false,endOfSequence));
+            }
+            FindNextOfEachNT(nonTerminal, seekedNt);
+        }
+    }
+
+    private void FindNextOfEachNT(GrammarElement nonTerminal, List<GrammarElement> seekedNt)
+    {
+        for (var indexProduction = 0; indexProduction < productions.Count; indexProduction++)
+        {
+            for (var indexElement = 0; indexElement < productions[indexProduction].GetRightSide().Count; indexElement++)
+            {
+                if (productions[indexProduction].GetRightSide()[indexElement].IsNonTerminal())
+                {
+                    seekedNt.Add(productions[indexProduction].GetRightSide()[indexElement]);
+                    FindNextOfEachNT(nonTerminal, seekedNt);
+                }
+            }
+        }
+    }
+    
     /// <summary>
     /// Define no terminales, identifica símbolo de lado izquierdo que sea terminal, y que no esté repetido.
     /// No acepta secuencia nula
