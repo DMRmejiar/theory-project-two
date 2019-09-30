@@ -13,7 +13,10 @@ public class Grammar
     List<List<GrammarElement>> firstOfEachProduction;
     Dictionary<GrammarElement, List<GrammarElement>> nextOfEachNT;
     List<GrammarElement> selectionOfEachProduction;
-
+    bool isSGrammar = false;
+    bool isQGrammar = false;
+    bool isSFGrammar = false;
+    bool isLRGrammar = false;
     string endOfSequence = "Ω";
 
     /// <summary>
@@ -74,17 +77,34 @@ public class Grammar
         return voidables;
     }
 
+    public List<string> GetFirstOfEachProduction()
+    {
+        List<string> firsts = new List<string>();
+        string newFirsts = "";
+        foreach (List<GrammarElement> item in firstOfEachProduction)
+        {
+            foreach (GrammarElement i in item)
+            {
+                newFirsts += i.GetSymbol() + " ";
+            }
+            firsts.Add(newFirsts);
+            newFirsts = "";
+        }
+        return firsts;
+    }
+
     public List<string> GetFirstOfEachNT()
     {
         List<string> firsts = new List<string>();
-        foreach (var item in firstOfEachNT)
+        string newFirsts = "";
+        foreach (KeyValuePair<GrammarElement, List<GrammarElement>> item in firstOfEachNT)
         {
-            string value = item.Key.GetSymbol() + " =";
-            foreach (var element in item.Value)
+            foreach (GrammarElement i in item.Value)
             {
-                value += " "+element.GetSymbol();
+                newFirsts += i.GetSymbol() + " ";
             }
-            firsts.Add(value);
+            firsts.Add(newFirsts);
+            newFirsts = "";
         }
         return firsts;
     }
@@ -390,14 +410,8 @@ public class Grammar
                 }
             }
         }
-        if (helper == productions.Count)
-        {
-            Console.WriteLine("IS S GRAMMAR: TRUE");
-        }
-        else
-        {
-            Console.WriteLine("IS S GRAMMAR: FALSE");
-        }
+        if (helper == productions.Count) isSGrammar = true;
+        
     }
 
     /// <summary>
@@ -440,14 +454,7 @@ public class Grammar
                 }
             }
         }
-        if (helper == productions.Count)
-        {
-            Console.WriteLine("IS Q GRAMMAR: TRUE");
-        }
-        else
-        {
-            Console.WriteLine("IS Q GRAMMAR: FALSE");
-        }
+        if (helper == productions.Count) isQGrammar = true;
     }
 
     /// <summary>
@@ -473,14 +480,7 @@ public class Grammar
                 }
             }
         }
-        if (helper == productions.Count)
-        {
-            Console.WriteLine("IS SPECIAL FORM GRAMMAR: TRUE");
-        }
-        else
-        {
-            Console.WriteLine("IS SPECIAL FORM GRAMMAR: FALSE");
-        }
+        if (helper == productions.Count) isSFGrammar = true;
     }
 
     /// <summary>
@@ -522,13 +522,12 @@ public class Grammar
             }
             
         }
-        if (helper == productions.Count)
-        {
-            Console.WriteLine("IS LINEAR ON THE RIGHT GRAMMAR: TRUE");
-        }
-        else
-        {
-            Console.WriteLine("IS LINEAR ON THE RIGHT GRAMMAR: FALSE");
-        }
+        if (helper == productions.Count) isLRGrammar = true;
+    }
+
+    public List<bool> GetGrammarTypes()
+    {
+        List<bool> grammarTypes = new List<bool>() { isSGrammar, isQGrammar, isSFGrammar, isLRGrammar };
+        return grammarTypes;
     }
 }

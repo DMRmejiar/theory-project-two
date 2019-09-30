@@ -16,6 +16,7 @@ public class GrammarCreator : MonoBehaviour
 
     Dictionary<GameObject, GrammarElement> elements;
     Dictionary<GameObject, GrammarProduction> productions;
+    Grammar grammar;
 
     GrammarProduction currentProduction;
     bool newProduction = true;
@@ -32,46 +33,12 @@ public class GrammarCreator : MonoBehaviour
     void Start()
     {
         elements = new Dictionary<GameObject, GrammarElement>();
-        productions = new Dictionary<GameObject, GrammarProduction>();
+        this.productions = new Dictionary<GameObject, GrammarProduction>();
 
         currentProduction = new GrammarProduction(null, new List<GrammarElement>());
 
-        GrammarElement A = new GrammarElement(true, "A");
-        GrammarElement B = new GrammarElement(true, "B");
-        GrammarElement C = new GrammarElement(true, "C");
-        GrammarElement D = new GrammarElement(true, "D");
-        GrammarElement E = new GrammarElement(true, "E");
-        GrammarElement a = new GrammarElement(false, "a");
-        GrammarElement b = new GrammarElement(false, "b");
-        GrammarElement c = new GrammarElement(false, "c");
-        GrammarElement d = new GrammarElement(false, "d");
-        GrammarElement e = new GrammarElement(false, "e");
-        GrammarElement f = new GrammarElement(false, "f");
-        
-        GrammarProduction one = new GrammarProduction(A, new List<GrammarElement>() { a, B, C });
-        GrammarProduction two = new GrammarProduction(A, new List<GrammarElement>() { D, b, A });
-        GrammarProduction three = new GrammarProduction(B, new List<GrammarElement>() {  });
-        GrammarProduction four = new GrammarProduction(B, new List<GrammarElement>() { b, A, B });
-        GrammarProduction five = new GrammarProduction(C, new List<GrammarElement>() { c, C });
-        GrammarProduction six = new GrammarProduction(C, new List<GrammarElement>() { D, d, B });
-        GrammarProduction seven = new GrammarProduction(D, new List<GrammarElement>() {  });
-        GrammarProduction eight = new GrammarProduction(D, new List<GrammarElement>() { e, E });
-        GrammarProduction nine = new GrammarProduction(E, new List<GrammarElement>() { B, D });
-        GrammarProduction ten = new GrammarProduction(E, new List<GrammarElement>() { f });
 
-        List<GrammarProduction> altProds = new List<GrammarProduction>() { one, two, three, four, five, six, seven, eight, nine, ten };
 
-        Grammar grammar = new Grammar(altProds, new List<GrammarElement>() { A, B, C, D, E });
-
-        foreach (string item in grammar.GetVoidableNonTerminals())
-        {
-            Debug.Log(item);
-        }
-
-        foreach (var item in grammar.GetFirstOfEachNT())
-        {
-            Debug.Log(item);
-        }
     }
 
     public bool VerifyExistence(string symbol)
@@ -281,19 +248,36 @@ public class GrammarCreator : MonoBehaviour
 
     public void SendGrammar(List<GrammarElement> nt, List<GrammarProduction> productions)
     {
-        foreach (GrammarElement element in nt)
-        {
-            Debug.Log("<" + element.GetSymbol() + ">");
-        }
-        foreach (GrammarProduction production in productions)
-        {
-            Debug.Log(GetProductionString(production));
-        }
+        grammar = new Grammar(productions, nt);
+        Print();
     }
 
     public void ErrorMessage(string text)
     {
         errorPanel.SetActive(true);
         errorText.text = text;
+    }
+
+    public void Print()
+    {
+        List<string> firsts = grammar.GetFirstOfEachNT();
+        Debug.Log("Primeros de NT");
+        foreach (string item in firsts)
+        {
+            Debug.Log(item);
+        }
+
+        firsts = grammar.GetFirstOfEachProduction();
+        Debug.Log("Primeros de Producción");
+        foreach (string item in firsts)
+        {
+            Debug.Log(item);
+        }
+
+        List<bool> types = grammar.GetGrammarTypes();
+        if (types[0]) Debug.Log("Is S Gramar");
+        if (types[1]) Debug.Log("Is Q Gramar");
+        if (types[2]) Debug.Log("Is SpecialForm Gramar");
+        if (types[3]) Debug.Log("Is RightLinear Gramar");
     }
 }

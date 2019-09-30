@@ -5004,7 +5004,7 @@ MonoBehaviour:
   m_KeyboardType: 1
   m_LineType: 0
   m_HideMobileInput: 0
-  m_CharacterValidation: 4
+  m_CharacterValidation: 3
   m_CharacterLimit: 1
   m_OnEndEdit:
     m_PersistentCalls:
